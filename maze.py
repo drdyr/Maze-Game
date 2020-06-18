@@ -26,11 +26,10 @@ class Maze:
             for y in range(height):
                 cell = Cell(x, y, self)
                 cell.set_type(WALL)
-                if (x != 0 and x != width - 1) and (y != 0 and y != height - 1):
-                    self.cells.append(cell)
-                    if x % 2 == 1 and y % 2 == 1:
-                        self.odd_cells.append(cell)
-                        cell.set_type(PASSAGE)
+                self.cells.append(cell)
+                if x % 2 == 1 and y % 2 == 1:
+                    cell.set_type(PASSAGE)
+                    self.odd_cells.append(cell)
 
     def generate(self):
         cells = self.odd_cells
@@ -94,6 +93,7 @@ class Cell:
         pygame.draw.rect(screen, self.cell_type, self.rect, 0)
 
     def set_type(self, cell_type):
+        print("setting type")
         self.cell_type = cell_type
         self.draw()
 
@@ -114,8 +114,7 @@ screen_width, screen_height = 800, 800
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Maze')
 
-running = True
-while running:
+while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
