@@ -13,6 +13,14 @@ class Player(pygame.sprite.Sprite):
         pass
 
 
+class Maze():
+    def __init__(self, width, height):
+        for x in range(width):
+            for y in range(height):
+                rect = pygame.Rect(20 * x, 20 * y, 20, 20)
+                pygame.draw.rect(screen, (200, 200, 200), rect, 1)
+
+
 player1 = Player()
 player_group = pygame.sprite.Group()
 player_group.add(player1)
@@ -30,10 +38,9 @@ while running:
             pygame.quit()
             sys.exit()
 
-    screen.fill((255, 255, 255))
+    screen.fill((30, 30, 30))
     player_group.draw(screen)
     player_group.update()
-
+    maze = Maze(25, 25)
     pygame.display.flip()
     clock.tick(60)
-
