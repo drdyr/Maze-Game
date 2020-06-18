@@ -98,18 +98,21 @@ class Player:
                                 25)
 
     def draw(self):
+        self.rect = pygame.Rect(25 * self.x, 25 * self.y, 25,
+                                25)
         pygame.draw.rect(screen, (255, 0, 0), self.rect, 0)
 
     def player_move(self, direction):
-        if direction == "up" and Cell(self.x, self.y - 1, maze).get_type() != WALL:
+        if direction == "up" and maze.get_cell_type(self.x, self.y - 1) != WALL:
             self.y -= 1
-        elif direction == "down" and Cell(self.x, self.y + 1, maze).get_type() != WALL:
+            print("up")
+        elif direction == "down" and maze.get_cell_type(self.x, self.y + 1) != WALL:
             self.y += 1
             print("down")
-        elif direction == "left" and Cell(self.x - 1, self.y, maze).get_type() != WALL:
+        elif direction == "left" and maze.get_cell_type(self.x - 1, self.y) != WALL:
             self.x -= 1
             print("left")
-        elif direction == "right" and Cell(self.x + 1, self.y - 1, maze).get_type() != WALL:
+        elif direction == "right" and maze.get_cell_type(self.x + 1, self.y) != WALL:
             self.x += 1
             print("right")
 
@@ -148,8 +151,8 @@ start_menu = True
 while True:
     while start_menu:
         event_startmenu = pygame.event.poll()
-        start_text1 = pygame.font.SysFont('comicsans', 120).render('Press ENTER to start', 1, (255, 255, 255))
-        start_text2 = pygame.font.SysFont('comicsans', 120).render('Press ESC to quit', 1, (255, 255, 255))
+        start_text1 = pygame.font.SysFont('comicsans', 100).render('Press ENTER to start', 1, (255, 255, 255))
+        start_text2 = pygame.font.SysFont('comicsans', 90).render('Press ESC to quit', 1, (255, 255, 255))
         screen.blit(start_text1,
                     (screen_width / 2 - start_text1.get_width() / 2, screen_height / 2 - start_text2.get_height() / 2))
         screen.blit(start_text2,
