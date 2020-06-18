@@ -25,7 +25,7 @@ class Maze:
         for x in range(width):
             for y in range(height):
                 cell = Cell(x, y, self)
-                cell.draw()
+                cell.set_type(WALL)
                 if (x != 0 and x != width - 1) and (y != 0 and y != height - 1):
                     self.cells.append(cell)
                     if x % 2 == 1 and y % 2 == 1:
@@ -65,32 +65,37 @@ class Maze:
     def unvisited(self, cell):
         x = cell.x
         y = cell.y
-        if (Cell(x + 1, y, self).get_type() == WALL and
-                Cell(x - 1, y, self).get_type() == WALL and
-                Cell(x, y + 1, self).get_type() == WALL and
-                Cell(x, y - 1, self).get_type() == WALL):
+        if (self.get_cell_type(x + 1, y) == WALL and
+                self.get_cell_type(x - 1, y) == WALL and
+                self.get_cell_type(x, y + 1) == WALL and
+                self.get_cell_type(x, y - 1) == WALL):
+            print("unvisited")
             return True
         else:
             return False
+
+    def get_cell_type(self, x, y):
+        if Cell(x, y, self) in self.cells:
+            index = self.cells.index(Cell(x, y, maze))
+            return self.cells[index].get_type()
 
 
 class Cell:
     def __init__(self, x, y, maze):
         self.x = x
         self.y = y
-        self.cell_type = WALL
         self.rect = pygame.Rect(maze.cell_width * self.x, maze.cell_height * self.y, maze.cell_width,
                                 maze.cell_height)
 
     def __eq__(self, other):
-        return self.x == other.x and self.y == other.y and self.cell_type == other.cell_type
+        return self.x == other.x and self.y == other.y
 
     def draw(self):
         pygame.draw.rect(screen, self.cell_type, self.rect, 0)
 
     def set_type(self, cell_type):
         self.cell_type = cell_type
-        pygame.draw.rect(screen, cell_type, self.rect, 0)
+        self.draw()
 
     def get_type(self):
         return self.cell_type
@@ -120,6 +125,6 @@ while running:
     player_group.draw(screen)
     player_group.update()
     maze = Maze(11, 11)
-    # maze.generate()
+    maze.generate()
     pygame.display.flip()
     clock.tick(60)
