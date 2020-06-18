@@ -25,11 +25,10 @@ class Maze:
         for x in range(width):
             for y in range(height):
                 cell = Cell(x, y, self)
-                cell.set_type(WALL)
-                self.cells.append(cell)
                 if x % 2 == 1 and y % 2 == 1:
                     cell.set_type(PASSAGE)
                     self.odd_cells.append(cell)
+                self.cells.append(cell)
 
     def draw(self):
         for cell in self.cells:
@@ -42,8 +41,10 @@ class Maze:
         stack.append(current_cell)
         while len(stack) != 0:
             neighbour = random.choice(self.get_neighbours(current_cell))
+            print("Getting neighbour at "+str(neighbour.x)+ " "+str(neighbour.y))
             wall = Cell((neighbour.x + current_cell.x) / 2, (neighbour.y + current_cell.y) / 2, self)
             wall.set_type(PASSAGE)
+            self.cells[self.cells.index(wall)] = wall
             current_cell = neighbour
             stack.append(current_cell)
             while len(self.get_neighbours(current_cell)) == 0 and len(stack) != 0:
@@ -54,13 +55,14 @@ class Maze:
         y = cell.y
         neighbours = []
         for i in range(-2, 2, 4):
+            print("testing")
             cell1 = Cell(x + i, y, self)
             cell2 = Cell(x, y + i, self)
             if cell1 in self.odd_cells and self.unvisited(cell1):
-                print("adding")
+                #print("adding")
                 neighbours.append(Cell(x + i, y, self))
             if cell2 in self.odd_cells and self.unvisited(cell2):
-                print("adding")
+                #print("adding")
                 neighbours.append(Cell(x, y + i, self))
 
         return neighbours
@@ -101,7 +103,6 @@ class Cell:
     def set_type(self, cell_type):
        # print("setting type")
         self.cell_type = cell_type
-        self.draw()
 
     def get_type(self):
         return self.cell_type
@@ -122,6 +123,8 @@ pygame.display.set_caption('Maze')
 screen.fill((30, 30, 30))
 maze = Maze(11,11)
 maze.generate()
+maze.draw()
+
 
 
 while True:
@@ -129,8 +132,6 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-    screen.fill((30, 30, 30))
-    maze.draw()
     player_group.draw(screen)
     player_group.update()
     pygame.display.flip()
