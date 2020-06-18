@@ -24,7 +24,7 @@ class Maze:
         self.cell_height = screen_height / height
         for x in range(width):
             for y in range(height):
-                cell = Cell(x, y, WALL, self.cell_width, self.cell_height)
+                cell = Cell(x, y, self)
                 cell.draw()
                 if (x != 0 and x != width - 1) and (y != 0 and y != height - 1):
                     self.cells.append(cell)
@@ -37,11 +37,10 @@ class Maze:
         stack = []
         current_cell = random.choice(cells)
         stack.append(current_cell)
-        while len(stack) != 0 and self.get_neighbours(current_cell) != 0:
+        while len(stack) != 0:
             neighbour = random.choice(self.get_neighbours(current_cell))
-            wall = Cell((neighbour.x + current_cell.x) / 2, (neighbour.y + current_cell.y) / 2, PASSAGE,
-                        self.cell_width, self.cell_height)
-            wall.draw()
+            wall = Cell((neighbour.x + current_cell.x) / 2, (neighbour.y + current_cell.y) / 2, self)
+            wall.set_type(PASSAGE)
             current_cell = neighbour
             stack.append(current_cell)
             while len(self.get_neighbours(current_cell)) == 0 and len(stack) != 0:
@@ -52,36 +51,36 @@ class Maze:
         y = cell.y
         neighbours = []
         for i in range(-2, 2, 4):
-            cell1 = Cell(x + i, y, PASSAGE, self.cell_width, self.cell_height)
-            cell2 = Cell(x, y + i, PASSAGE, self.cell_width, self.cell_height)
+            cell1 = Cell(x + i, y, self)
+            cell2 = Cell(x, y + i, self)
             if cell1 in self.odd_cells and self.unvisited(cell1):
                 print("adding")
-                neighbours.append(Cell(x + i, y, PASSAGE, self.cell_width, self.cell_height))
+                neighbours.append(Cell(x + i, y, self))
             if cell2 in self.odd_cells and self.unvisited(cell2):
                 print("adding")
-                neighbours.append(Cell(x, y + i, PASSAGE, self.cell_width, self.cell_height))
+                neighbours.append(Cell(x, y + i, self))
 
         return neighbours
 
     def unvisited(self, cell):
         x = cell.x
         y = cell.y
-        if (Cell(x + 1, y, WALL, self.cell_width, self.cell_height) in self.cells and
-                Cell(x - 1, y, WALL, self.cell_width, self.cell_height) in self.cells and
-                Cell(x, y + 1, WALL, self.cell_width, self.cell_height) in self.cells and
-                Cell(x, y - 1, WALL, self.cell_width, self.cell_height) in self.cells):
+        if (Cell(x + 1, y, self).get_type() == WALL and
+                Cell(x - 1, y, self).get_type() == WALL and
+                Cell(x, y + 1, self).get_type() == WALL and
+                Cell(x, y - 1, self).get_type() == WALL):
             return True
         else:
             return False
 
 
 class Cell:
-    def __init__(self, x, y, cell_type, width, height):
+    def __init__(self, x, y, maze):
         self.x = x
         self.y = y
-        self.cell_type = cell_type
-        self.rect = pygame.Rect(width * self.x, height * self.y, width,
-                                height)
+        self.cell_type = WALL
+        self.rect = pygame.Rect(maze.cell_width * self.x, maze.cell_height * self.y, maze.cell_width,
+                                maze.cell_height)
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y and self.cell_type == other.cell_type
@@ -92,6 +91,9 @@ class Cell:
     def set_type(self, cell_type):
         self.cell_type = cell_type
         pygame.draw.rect(screen, cell_type, self.rect, 0)
+
+    def get_type(self):
+        return self.cell_type
 
 
 PASSAGE = (255, 255, 255)
@@ -117,7 +119,7 @@ while running:
     screen.fill((30, 30, 30))
     player_group.draw(screen)
     player_group.update()
-    maze = Maze(20, 20)
-    maze.generate()
+    maze = Maze(11, 11)
+    # maze.generate()
     pygame.display.flip()
     clock.tick(60)
