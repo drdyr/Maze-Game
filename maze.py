@@ -20,12 +20,12 @@ class Maze:
         self.odd_cells = []
         self.width = width
         self.height = height
-        self.cell_width = screen_width / width
-        self.cell_height = screen_height / height
+        self.cell_side_length = cell_side_length
+
         for x in range(width):
             for y in range(height):
                 cell = Cell(x, y, self)
-                if x % 2 == 1 and y % 2 == 1:
+                if x % 2 == 1 and y % 2 == 1 and x != 0 and x != width - 1 and y != 0 and y != height - 1:
                     cell.set_type(PASSAGE)
                     self.odd_cells.append(cell)
                 self.cells.append(cell)
@@ -48,6 +48,7 @@ class Maze:
             stack.append(current_cell)
             while len(self.get_neighbours(current_cell)) == 0 and len(stack) != 0:
                 current_cell = stack.pop()
+        self.cells[self.cells.index(Cell(self.width - 2, self.height - 2, maze))].set_type(FINISH)
 
     def get_neighbours(self, cell):
         x = cell.x
@@ -83,8 +84,8 @@ class Cell:
     def __init__(self, x, y, maze):
         self.x = x
         self.y = y
-        self.rect = pygame.Rect(maze.cell_width * self.x, maze.cell_height * self.y, maze.cell_width,
-                                maze.cell_height)
+        self.rect = pygame.Rect(cell_side_length * self.x, cell_side_length * self.y, cell_side_length,
+                                cell_side_length)
         self.cell_type = WALL
 
     def __eq__(self, other):
@@ -102,28 +103,55 @@ class Cell:
 
 PASSAGE = (255, 255, 255)
 WALL = (170, 170, 170)
+FINISH = (85, 235, 52)
 
 player1 = Player()
 player_group = pygame.sprite.Group()
 player_group.add(player1)
 
+cell_side_length = 30
+maze_width = int(input("Enter maze cell width: "))
+maze_height = int(input("Enter maze cell height: "))
+
 pygame.init()
 clock = pygame.time.Clock()
-screen_width, screen_height = 800, 800
+screen_width, screen_height = cell_side_length * maze_width, cell_side_length * maze_height
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Maze')
-screen.fill((30, 30, 30))
-maze = Maze(11,11)
+maze = Maze(maze_width, maze_height)
 maze.generate()
-maze.draw()
+screen.fill((30, 30, 30))
 
+
+start_menu = True
 
 
 while True:
+    while start_menu:
+        event_startmenu = pygame.event.poll()
+        start_text1 = pygame.font.SysFont('comicsans', 120).render('Press ENTER to start', 1, (255, 255, 255))
+        start_text2 = pygame.font.SysFont('comicsans', 120).render('Press ESC to quit', 1, (255, 255, 255))
+        screen.blit(start_text1,
+                    (screen_width / 2 - start_text1.get_width() / 2, screen_height / 2 - start_text2.get_height() / 2))
+        screen.blit(start_text2,
+                    (screen_width / 2 - start_text2.get_width() / 2, screen_height / 3 * 2))
+        pygame.display.flip()
+        if event_startmenu.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        if event_startmenu.type == pygame.KEYDOWN:
+            if event_startmenu.key == pygame.K_RETURN:
+                start_menu = False
+                break
+            if event_startmenu.key == pygame.K_ESCAPE:
+                pygame.quit()
+                sys.quit()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+    screen.fill((30, 30, 30))
+    maze.draw()
     player_group.draw(screen)
     player_group.update()
     pygame.display.flip()
