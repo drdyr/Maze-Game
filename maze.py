@@ -17,9 +17,17 @@ class Maze():
     def __init__(self, width, height):
         for x in range(width):
             for y in range(height):
-                rect = pygame.Rect(20 * x, 20 * y, 20, 20)
-                pygame.draw.rect(screen, (200, 200, 200), rect, 1)
+                rect = pygame.Rect((screen_width / width) * x, (screen_height / height) * y, screen_width / width, screen_height / height)
+                pygame.draw.rect(screen, (200, 200, 200), rect, 0)
 
+class Cell():
+    def __init(self, x, y, type):
+        self.x = x
+        self.y = y
+        self.type = WALL
+
+PASSAGE = 1
+WALL = 0
 
 player1 = Player()
 player_group = pygame.sprite.Group()
