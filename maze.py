@@ -129,6 +129,11 @@ cell_side_length = 25
 maze_width = 42
 maze_height = 42
 
+up = False
+down = False
+left = False
+right = False
+
 while maze_width > 41 or maze_height > 41:
     maze_width = 2 * int(input("Enter maze width: ")) + 1
     maze_height = 2 * int(input("Enter maze height: ")) + 1
@@ -151,8 +156,8 @@ start_menu = True
 while True:
     while start_menu:
         event_startmenu = pygame.event.poll()
-        start_text1 = pygame.font.SysFont('comicsans', 100).render('Press ENTER to start', 1, (255, 255, 255))
-        start_text2 = pygame.font.SysFont('comicsans', 90).render('Press ESC to quit', 1, (255, 255, 255))
+        start_text1 = pygame.font.SysFont('comicsans', int(100*(screen_width/800))).render('Press ENTER to start', 1, (255, 255, 255))
+        start_text2 = pygame.font.SysFont('comicsans', int(90*(screen_width/800))).render('Press ESC to quit', 1, (255, 255, 255))
         screen.blit(start_text1,
                     (screen_width / 2 - start_text1.get_width() / 2, screen_height / 2 - start_text2.get_height() / 2))
         screen.blit(start_text2,
@@ -168,19 +173,37 @@ while True:
             if event_startmenu.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
+    if up:
+        player1.player_move("up")
+    if down:
+        player1.player_move("down")
+    if left:
+        player1.player_move("left")
+    if right:
+        player1.player_move("right")
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w:
-                player1.player_move("up")
+                up = True
             if event.key == pygame.K_s:
-                player1.player_move("down")
+                down = True
             if event.key == pygame.K_a:
-                player1.player_move("left")
+                left = True
             if event.key == pygame.K_d:
-                player1.player_move("right")
+                right = True
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_w:
+                up = False
+            if event.key == pygame.K_s:
+                down = False
+            if event.key == pygame.K_a:
+                left = False
+            if event.key == pygame.K_d:
+                right = False
 
     screen.fill((30, 30, 30))
 
@@ -188,4 +211,4 @@ while True:
     player1.draw()
 
     pygame.display.flip()
-    clock.tick(60)
+    clock.tick(16)
