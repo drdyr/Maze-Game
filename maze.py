@@ -31,6 +31,10 @@ class Maze:
                     cell.set_type(PASSAGE)
                     self.odd_cells.append(cell)
 
+    def draw(self):
+        for cell in self.cells:
+            cell.draw()
+
     def generate(self):
         cells = self.odd_cells
         stack = []
@@ -76,6 +80,7 @@ class Maze:
     def get_cell_type(self, x, y):
         if Cell(x, y, self) in self.cells:
             index = self.cells.index(Cell(x, y, maze))
+            print(index)
             return self.cells[index].get_type()
 
 
@@ -85,6 +90,7 @@ class Cell:
         self.y = y
         self.rect = pygame.Rect(maze.cell_width * self.x, maze.cell_height * self.y, maze.cell_width,
                                 maze.cell_height)
+        self.cell_type = WALL
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
@@ -93,7 +99,7 @@ class Cell:
         pygame.draw.rect(screen, self.cell_type, self.rect, 0)
 
     def set_type(self, cell_type):
-        print("setting type")
+       # print("setting type")
         self.cell_type = cell_type
         self.draw()
 
@@ -113,17 +119,19 @@ clock = pygame.time.Clock()
 screen_width, screen_height = 800, 800
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Maze')
+screen.fill((30, 30, 30))
+maze = Maze(11,11)
+maze.generate()
+
 
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
     screen.fill((30, 30, 30))
+    maze.draw()
     player_group.draw(screen)
     player_group.update()
-    maze = Maze(11, 11)
-    maze.generate()
     pygame.display.flip()
     clock.tick(60)
