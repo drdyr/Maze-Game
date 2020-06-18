@@ -41,7 +41,6 @@ class Maze:
         stack.append(current_cell)
         while len(stack) != 0:
             neighbour = random.choice(self.get_neighbours(current_cell))
-            print("Getting neighbour at "+str(neighbour.x)+ " "+str(neighbour.y))
             wall = Cell((neighbour.x + current_cell.x) / 2, (neighbour.y + current_cell.y) / 2, self)
             wall.set_type(PASSAGE)
             self.cells[self.cells.index(wall)] = wall
@@ -54,17 +53,13 @@ class Maze:
         x = cell.x
         y = cell.y
         neighbours = []
-        for i in range(-2, 2, 4):
-            print("testing")
+        for i in range(-2, 3, 4):
             cell1 = Cell(x + i, y, self)
             cell2 = Cell(x, y + i, self)
             if cell1 in self.odd_cells and self.unvisited(cell1):
-                #print("adding")
                 neighbours.append(Cell(x + i, y, self))
             if cell2 in self.odd_cells and self.unvisited(cell2):
-                #print("adding")
                 neighbours.append(Cell(x, y + i, self))
-
         return neighbours
 
     def unvisited(self, cell):
@@ -74,7 +69,6 @@ class Maze:
                 self.get_cell_type(x - 1, y) == WALL and
                 self.get_cell_type(x, y + 1) == WALL and
                 self.get_cell_type(x, y - 1) == WALL):
-            print("unvisited")
             return True
         else:
             return False
@@ -82,7 +76,6 @@ class Maze:
     def get_cell_type(self, x, y):
         if Cell(x, y, self) in self.cells:
             index = self.cells.index(Cell(x, y, maze))
-            print(index)
             return self.cells[index].get_type()
 
 
@@ -101,7 +94,6 @@ class Cell:
         pygame.draw.rect(screen, self.cell_type, self.rect, 0)
 
     def set_type(self, cell_type):
-       # print("setting type")
         self.cell_type = cell_type
 
     def get_type(self):
