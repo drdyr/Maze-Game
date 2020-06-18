@@ -20,34 +20,59 @@ class Maze:
         self.odd_cells = []
         self.width = width
         self.height = height
+        self.cell_width = screen_width / width
+        self.cell_height = screen_height / height
         for x in range(width):
             for y in range(height):
-                cell = Cell(x, y, WALL, (screen_width / width), (screen_height / height))
+                cell = Cell(x, y, WALL, self.cell_width, self.cell_height)
+                cell.draw()
                 if (x != 0 and x != width - 1) and (y != 0 and y != height - 1):
                     self.cells.append(cell)
                     if x % 2 == 1 and y % 2 == 1:
                         self.odd_cells.append(cell)
+                        cell.set_type(PASSAGE)
 
     def generate(self):
         cells = self.odd_cells
         stack = []
-        start_cell = random.choice(cells)
-        stack.append(start_cell)
-        while len(stack) != 0:
-            neighbour = random.choice(get_neighbours(start_cell))
+        current_cell = random.choice(cells)
+        stack.append(current_cell)
+        while len(stack) != 0 and self.get_neighbours(current_cell) != 0:
+            neighbour = random.choice(self.get_neighbours(current_cell))
+            wall = Cell((neighbour.x + current_cell.x) / 2, (neighbour.y + current_cell.y) / 2, PASSAGE,
+                        self.cell_width, self.cell_height)
+            wall.draw()
+            current_cell = neighbour
+            stack.append(current_cell)
+            while len(self.get_neighbours(current_cell)) == 0 and len(stack) != 0:
+                current_cell = stack.pop()
 
     def get_neighbours(self, cell):
         x = cell.x
         y = cell.y
         neighbours = []
         for i in range(-2, 2, 4):
-            # add is unvisited
-            if Cell(x + i, y, WALL, (screen_width / self.width), (screen_height / self.height)) in self.odd_cells:
-                neighbours.append(Cell(x + i, y, WALL, (screen_width / self.width), (screen_height / self.height)))
-            if Cell(x, y + i, WALL, (screen_width / self.width), (screen_height / self.height)) in self.odd_cells:
-                neighbours.append(Cell(x, y + i, WALL, (screen_width / self.width), (screen_height / self.height)))
+            cell1 = Cell(x + i, y, PASSAGE, self.cell_width, self.cell_height)
+            cell2 = Cell(x, y + i, PASSAGE, self.cell_width, self.cell_height)
+            if cell1 in self.odd_cells and self.unvisited(cell1):
+                print("adding")
+                neighbours.append(Cell(x + i, y, PASSAGE, self.cell_width, self.cell_height))
+            if cell2 in self.odd_cells and self.unvisited(cell2):
+                print("adding")
+                neighbours.append(Cell(x, y + i, PASSAGE, self.cell_width, self.cell_height))
 
         return neighbours
+
+    def unvisited(self, cell):
+        x = cell.x
+        y = cell.y
+        if (Cell(x + 1, y, WALL, self.cell_width, self.cell_height) in self.cells and
+                Cell(x - 1, y, WALL, self.cell_width, self.cell_height) in self.cells and
+                Cell(x, y + 1, WALL, self.cell_width, self.cell_height) in self.cells and
+                Cell(x, y - 1, WALL, self.cell_width, self.cell_height) in self.cells):
+            return True
+        else:
+            return False
 
 
 class Cell:
@@ -55,9 +80,14 @@ class Cell:
         self.x = x
         self.y = y
         self.cell_type = cell_type
-        self.rect = pygame.Rect(width * x, height * y, width,
+        self.rect = pygame.Rect(width * self.x, height * self.y, width,
                                 height)
-        pygame.draw.rect(screen, cell_type, self.rect, 0)
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y and self.cell_type == other.cell_type
+
+    def draw(self):
+        pygame.draw.rect(screen, self.cell_type, self.rect, 0)
 
     def set_type(self, cell_type):
         self.cell_type = cell_type
@@ -87,6 +117,7 @@ while running:
     screen.fill((30, 30, 30))
     player_group.draw(screen)
     player_group.update()
-    maze = Maze(25, 25)
+    maze = Maze(20, 20)
+    maze.generate()
     pygame.display.flip()
     clock.tick(60)
