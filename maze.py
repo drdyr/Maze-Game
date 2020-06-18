@@ -3,17 +3,6 @@ import pygame
 import sys
 
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.Surface((30, 30))
-        self.image.fill((255, 0, 0))
-        self.rect = self.image.get_rect(center=(100, 100))
-
-    def update(self):
-        pass
-
-
 class Maze:
     def __init__(self, width, height):
         self.cells = []
@@ -101,13 +90,37 @@ class Cell:
         return self.cell_type
 
 
+class Player:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.rect = pygame.Rect(25 * self.x, 25 * self.y, 25,
+                                25)
+
+    def draw(self):
+        pygame.draw.rect(screen, (255, 0, 0), self.rect, 0)
+
+    def player_move(self, direction):
+        if direction == "up" and Cell(self.x, self.y - 1, maze).get_type() != WALL:
+            self.y -= 1
+        elif direction == "down" and Cell(self.x, self.y + 1, maze).get_type() != WALL:
+            self.y += 1
+            print("down")
+        elif direction == "left" and Cell(self.x - 1, self.y, maze).get_type() != WALL:
+            self.x -= 1
+            print("left")
+        elif direction == "right" and Cell(self.x + 1, self.y - 1, maze).get_type() != WALL:
+            self.x += 1
+            print("right")
+
+
+
 PASSAGE = (255, 255, 255)
 WALL = (170, 170, 170)
 FINISH = (85, 235, 52)
 
-player1 = Player()
-player_group = pygame.sprite.Group()
-player_group.add(player1)
+player1 = Player(1, 1)
+
 
 cell_side_length = 25
 maze_width = 42
@@ -156,8 +169,20 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_w:
+                player1.player_move("up")
+            if event.key == pygame.K_s:
+                player1.player_move("down")
+            if event.key == pygame.K_a:
+                player1.player_move("left")
+            if event.key == pygame.K_d:
+                player1.player_move("right")
+
     screen.fill((30, 30, 30))
+
     maze.draw()
+    player1.draw()
 
     pygame.display.flip()
     clock.tick(60)
