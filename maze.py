@@ -109,9 +109,15 @@ player1 = Player()
 player_group = pygame.sprite.Group()
 player_group.add(player1)
 
-cell_side_length = 30
-maze_width = int(input("Enter maze cell width: "))
-maze_height = int(input("Enter maze cell height: "))
+cell_side_length = 25
+maze_width = 42
+maze_height = 42
+
+while maze_width > 41 or maze_height > 41:
+    maze_width = 2 * int(input("Enter maze width: ")) + 1
+    maze_height = 2 * int(input("Enter maze height: ")) + 1
+    if maze_width > 41 or maze_height > 41:
+        print("The maximum dimensions are 20x20.")
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -145,14 +151,13 @@ while True:
                 break
             if event_startmenu.key == pygame.K_ESCAPE:
                 pygame.quit()
-                sys.quit()
+                sys.exit()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
     screen.fill((30, 30, 30))
     maze.draw()
-    player_group.draw(screen)
-    player_group.update()
+
     pygame.display.flip()
     clock.tick(60)
