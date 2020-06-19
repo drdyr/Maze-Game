@@ -168,7 +168,30 @@ generate_new_maze(maze_width, maze_height)
 
 current_maze = mazes[0]
 
+start_menu = True
+
 while True:
+    while start_menu:
+        event_startmenu = pygame.event.poll()
+        start_text1 = pygame.font.SysFont('comicsans', int(100 * (screen_width / 800))).render('Press ENTER to start',
+                                                                                               1, (255, 255, 255))
+        start_text2 = pygame.font.SysFont('comicsans', int(90 * (screen_width / 800))).render('Press ESC to quit', 1,
+                                                                                              (255, 255, 255))
+        screen.blit(start_text1,
+                    (screen_width / 2 - start_text1.get_width() / 2, screen_height / 2 - start_text2.get_height() / 2))
+        screen.blit(start_text2,
+                    (screen_width / 2 - start_text2.get_width() / 2, screen_height / 3 * 2))
+        pygame.display.flip()
+        if event_startmenu.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        if event_startmenu.type == pygame.KEYDOWN:
+            if event_startmenu.key == pygame.K_RETURN:
+                start_menu = False
+                break
+            if event_startmenu.key == pygame.K_ESCAPE:
+                pygame.quit()
+                sys.exit()
     if up:
         player1.player_move("up")
     if down:
