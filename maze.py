@@ -37,7 +37,7 @@ class Maze:
             stack.append(current_cell)
             while len(self.get_neighbours(current_cell)) == 0 and len(stack) != 0:
                 current_cell = stack.pop()
-        self.cells[self.cells.index(Cell(self.width - 2, self.height - 2, maze))].set_type(FINISH)
+        self.cells[self.cells.index(Cell(self.width - 2, self.height - 2, self))].set_type(FINISH)
 
     def get_neighbours(self, cell):
         x = cell.x
@@ -65,7 +65,7 @@ class Maze:
 
     def get_cell_type(self, x, y):
         if Cell(x, y, self) in self.cells:
-            index = self.cells.index(Cell(x, y, maze))
+            index = self.cells.index(Cell(x, y, self))
             return self.cells[index].get_type()
 
 
@@ -103,19 +103,31 @@ class Player:
         pygame.draw.rect(screen, (255, 0, 0), self.rect, 0)
 
     def player_move(self, direction):
-        if direction == "up" and maze.get_cell_type(self.x, self.y - 1) != WALL:
+        if direction == "up" and current_maze.get_cell_type(self.x, self.y - 1) != WALL:
             self.y -= 1
             print("up")
-        elif direction == "down" and maze.get_cell_type(self.x, self.y + 1) != WALL:
+        elif direction == "down" and current_maze.get_cell_type(self.x, self.y + 1) != WALL:
             self.y += 1
             print("down")
-        elif direction == "left" and maze.get_cell_type(self.x - 1, self.y) != WALL:
+        elif direction == "left" and current_maze.get_cell_type(self.x - 1, self.y) != WALL:
             self.x -= 1
             print("left")
-        elif direction == "right" and maze.get_cell_type(self.x + 1, self.y) != WALL:
+        elif direction == "right" and current_maze.get_cell_type(self.x + 1, self.y) != WALL:
             self.x += 1
             print("right")
 
+    def is_completed(self):
+        global current_level, maze_width, maze_height, current_maze, screen_width, screen_height, screen
+        if current_maze.get_cell_type(self.x, self.y) == FINISH:
+            current_level += 1
+            maze_width = 4 * current_level + 1
+            maze_height = 4 * current_level + 1
+            screen_width, screen_height = cell_side_length * maze_width, cell_side_length * maze_height + 2 * cell_side_length
+            screen = pygame.display.set_mode((screen_width, screen_height))
+            generate_new_maze(maze_width, maze_height)
+            current_maze = mazes[0]
+            self.x = 1
+            self.y = 1
 
 
 PASSAGE = (255, 255, 255)
@@ -123,56 +135,40 @@ WALL = (170, 170, 170)
 FINISH = (85, 235, 52)
 
 player1 = Player(1, 1)
-
+current_level = 1
 
 cell_side_length = 25
-maze_width = 42
-maze_height = 42
+maze_width = 4 * current_level + 1
+maze_height = 4 * current_level + 1
+
 
 up = False
 down = False
 left = False
 right = False
 
-while maze_width > 41 or maze_height > 41:
-    maze_width = 2 * int(input("Enter maze width: ")) + 1
-    maze_height = 2 * int(input("Enter maze height: ")) + 1
-    if maze_width > 41 or maze_height > 41:
-        print("The maximum dimensions are 20x20.")
-
 pygame.init()
 clock = pygame.time.Clock()
-screen_width, screen_height = cell_side_length * maze_width, cell_side_length * maze_height
+screen_width, screen_height = cell_side_length * maze_width, cell_side_length * maze_height + 2 * cell_side_length
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Maze')
-maze = Maze(maze_width, maze_height)
-maze.generate()
-screen.fill((30, 30, 30))
+
+mazes = []
 
 
-start_menu = True
+def generate_new_maze(x, y):
+    new_maze = Maze(x, y)
+    new_maze.generate()
+    if len(mazes) >= 1:
+        mazes.pop()
+    mazes.append(new_maze)
 
+
+generate_new_maze(maze_width, maze_height)
+
+current_maze = mazes[0]
 
 while True:
-    while start_menu:
-        event_startmenu = pygame.event.poll()
-        start_text1 = pygame.font.SysFont('comicsans', int(100*(screen_width/800))).render('Press ENTER to start', 1, (255, 255, 255))
-        start_text2 = pygame.font.SysFont('comicsans', int(90*(screen_width/800))).render('Press ESC to quit', 1, (255, 255, 255))
-        screen.blit(start_text1,
-                    (screen_width / 2 - start_text1.get_width() / 2, screen_height / 2 - start_text2.get_height() / 2))
-        screen.blit(start_text2,
-                    (screen_width / 2 - start_text2.get_width() / 2, screen_height / 3 * 2))
-        pygame.display.flip()
-        if event_startmenu.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        if event_startmenu.type == pygame.KEYDOWN:
-            if event_startmenu.key == pygame.K_RETURN:
-                start_menu = False
-                break
-            if event_startmenu.key == pygame.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
     if up:
         player1.player_move("up")
     if down:
@@ -205,10 +201,11 @@ while True:
             if event.key == pygame.K_d:
                 right = False
 
-    screen.fill((30, 30, 30))
+    player1.is_completed()
 
-    maze.draw()
+    current_maze.draw()
     player1.draw()
 
     pygame.display.flip()
     clock.tick(16)
+
